@@ -1,0 +1,26 @@
+# Vigil configuration
+# Copy to vigil.yml and adjust values for your environment.
+# Environment variables override any value set here.
+
+# Prometheus connection
+prometheus_url: http://prometheus:9090
+# prometheus_user: admin
+# prometheus_password: secret
+
+# Loki connection
+loki_url: http://loki:3100
+# loki_user: admin
+# loki_password: secret
+
+# Grafana (optional — for annotations on state changes)
+# grafana_url: http://grafana:3000
+# grafana_api_token: your-service-account-token
+
+# Evaluation engine
+eval_interval: 30s
+
+# HTTP server
+listen_addr: ":8080"
+
+# SQLite database path
+db_path: /data/vigil.db

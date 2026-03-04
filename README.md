@@ -50,17 +50,7 @@ Add this to your existing monitoring `docker-compose.yml`:
       - "8080:8080"
     volumes:
       - vigil-data:/data
-    environment:
-      - PROMETHEUS_URL=http://prometheus:9090
-      - LOKI_URL=http://loki:3100
-      # If behind basic auth:
-      # - PROMETHEUS_USER=admin
-      # - PROMETHEUS_PASSWORD=secret
-      # - LOKI_USER=admin
-      # - LOKI_PASSWORD=secret
-      # Optional - for Grafana annotations on state changes:
-      # - GRAFANA_URL=http://grafana:3000
-      # - GRAFANA_API_TOKEN=your-token
+      - ./vigil.yml:/etc/vigil/vigil.yml:ro
     depends_on:
       - prometheus
       - loki
@@ -102,21 +92,55 @@ Go to `http://localhost:8080` and create your first switch.
 
 ## Configuration
 
-All configuration via environment variables:
+Vigil reads configuration from a YAML file. Copy the example and adjust for your environment:
 
-| Variable | Default | Description |
-|---|---|---|
-| `PROMETHEUS_URL` | `http://prometheus:9090` | Prometheus server URL |
-| `PROMETHEUS_USER` | _(empty)_ | Basic auth username for Prometheus |
-| `PROMETHEUS_PASSWORD` | _(empty)_ | Basic auth password for Prometheus |
-| `LOKI_URL` | `http://loki:3100` | Loki server URL |
-| `LOKI_USER` | _(empty)_ | Basic auth username for Loki |
-| `LOKI_PASSWORD` | _(empty)_ | Basic auth password for Loki |
-| `GRAFANA_URL` | _(empty)_ | Grafana URL (optional, for annotations) |
-| `GRAFANA_API_TOKEN` | _(empty)_ | Grafana API token (optional) |
-| `EVAL_INTERVAL` | `30s` | How often to evaluate all switches |
-| `LISTEN_ADDR` | `:8080` | HTTP server listen address |
-| `DB_PATH` | `/data/vigil.db` | SQLite database file path |
+```bash
+cp vigil.yml.example vigil.yml
+```
+
+**`vigil.yml`**:
+```yaml
+# Prometheus connection
+prometheus_url: http://prometheus:9090
+# prometheus_user: admin
+# prometheus_password: secret
+
+# Loki connection
+loki_url: http://loki:3100
+# loki_user: admin
+# loki_password: secret
+
+# Grafana (optional — for annotations on state changes)
+# grafana_url: http://grafana:3000
+# grafana_api_token: your-service-account-token
+
+# Evaluation engine
+eval_interval: 30s
+
+# HTTP server
+listen_addr: ":8080"
+
+# SQLite database path
+db_path: /data/vigil.db
+```
+
+Config file is searched in order: `CONFIG_FILE` env var → `./vigil.yml` → `/etc/vigil/vigil.yml`.
+
+Environment variables can still override any YAML value:
+
+| Variable | YAML key | Default | Description |
+|---|---|---|---|
+| `PROMETHEUS_URL` | `prometheus_url` | `http://prometheus:9090` | Prometheus server URL |
+| `PROMETHEUS_USER` | `prometheus_user` | _(empty)_ | Basic auth username for Prometheus |
+| `PROMETHEUS_PASSWORD` | `prometheus_password` | _(empty)_ | Basic auth password for Prometheus |
+| `LOKI_URL` | `loki_url` | `http://loki:3100` | Loki server URL |
+| `LOKI_USER` | `loki_user` | _(empty)_ | Basic auth username for Loki |
+| `LOKI_PASSWORD` | `loki_password` | _(empty)_ | Basic auth password for Loki |
+| `GRAFANA_URL` | `grafana_url` | _(empty)_ | Grafana URL (optional, for annotations) |
+| `GRAFANA_API_TOKEN` | `grafana_api_token` | _(empty)_ | Grafana API token (optional) |
+| `EVAL_INTERVAL` | `eval_interval` | `30s` | How often to evaluate all switches |
+| `LISTEN_ADDR` | `listen_addr` | `:8080` | HTTP server listen address |
+| `DB_PATH` | `db_path` | `/data/vigil.db` | SQLite database file path |
 
 ## Loki Endpoints Required
 
