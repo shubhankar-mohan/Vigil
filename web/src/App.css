@@ -25,18 +25,39 @@ body {
   text-decoration: none;
 }
 
-.nav-links { display: flex; gap: 1rem; }
+/* #10 — Active nav link styling */
+.nav-links { display: flex; gap: 0.25rem; }
 .nav-links a {
   color: #8b949e;
   text-decoration: none;
   font-size: 0.9rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
   transition: color 0.15s, background 0.15s;
+  border-bottom: 2px solid transparent;
 }
 .nav-links a:hover { color: #e1e4e8; background: #21262d; }
+.nav-links a.active {
+  color: #e1e4e8;
+  background: #21262d;
+  border-bottom-color: #58a6ff;
+  font-weight: 500;
+}
 
 .main { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+/* Breadcrumbs — #8 */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  color: #8b949e;
+}
+.breadcrumb a { color: #58a6ff; text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb .sep { color: #484f58; }
 
 /* Status badges */
 .badge {
@@ -80,8 +101,18 @@ body {
 
 /* Forms */
 .form { max-width: 600px; }
-.form-group { margin-bottom: 1rem; }
-.form-group label { display: block; font-size: 0.85rem; color: #8b949e; margin-bottom: 0.25rem; }
+
+/* #9 — More spacing between label and input */
+.form-group { margin-bottom: 1.15rem; }
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  color: #8b949e;
+  margin-bottom: 0.4rem;
+}
+/* #1 — Required field indicator */
+.form-group label .req { color: #f03e3e; margin-left: 2px; }
+
 .form-group input, .form-group select, .form-group textarea {
   width: 100%;
   padding: 0.5rem 0.75rem;
@@ -90,9 +121,51 @@ body {
   border-radius: 6px;
   color: #e1e4e8;
   font-size: 0.9rem;
+  transition: border-color 0.15s;
 }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: #58a6ff;
+}
+/* #5 — Field-level validation */
+.form-group input.field-error, .form-group textarea.field-error {
+  border-color: #f03e3e;
+}
+.field-error-msg {
+  font-size: 0.78rem;
+  color: #f03e3e;
+  margin-top: 0.25rem;
+}
+
 .form-group textarea { resize: vertical; min-height: 80px; font-family: monospace; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+/* #2 — Human-readable time hint + preset buttons */
+.form-hint {
+  font-size: 0.78rem;
+  color: #58a6ff;
+  margin-top: 0.25rem;
+}
+.preset-btn {
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: #8b949e;
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  margin-left: 0.25rem;
+  transition: background 0.15s, color 0.15s;
+}
+.preset-btn:hover { background: #30363d; color: #e1e4e8; }
+
+/* #7 — Helper text */
+.page-subtitle {
+  color: #8b949e;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1.25rem;
+}
 
 .btn {
   padding: 0.5rem 1rem;
@@ -111,7 +184,23 @@ body {
 .btn-danger:hover { background: #8b2525; }
 .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.8rem; }
 
-.btn-group { display: flex; gap: 0.5rem; margin-top: 1rem; }
+/* #6 — Cancel as ghost button, more separation */
+.btn-group {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  align-items: center;
+}
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  transition: color 0.15s;
+}
+.btn-ghost:hover { color: #e1e4e8; }
 
 /* Detail page */
 .detail-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
@@ -126,10 +215,16 @@ body {
 .error { color: #f85149; padding: 0.5rem; background: #4a1520; border-radius: 6px; margin-bottom: 1rem; }
 .muted { color: #8b949e; }
 
-/* Test query button & result */
-.btn-test { background: #1a3a4a; border-color: #22b8cf; color: #22b8cf; }
-.btn-test:hover { background: #1f4a5e; }
-.btn-test:disabled { opacity: 0.5; cursor: not-allowed; }
+/* #3 — Test query button: prominent filled style */
+.btn-test {
+  background: #1a3a4a;
+  border: 1px solid #22b8cf;
+  color: #ffffff;
+  font-weight: 500;
+  padding: 0.45rem 1rem;
+}
+.btn-test:hover { background: #22b8cf; color: #0f1117; }
+.btn-test:disabled { opacity: 0.4; cursor: not-allowed; background: #1a3a4a; color: #22b8cf; }
 
 .test-result {
   border: 1px solid #30363d;
@@ -150,3 +245,29 @@ body {
 .test-row { display: flex; gap: 0.5rem; padding: 0.2rem 0; }
 .test-label { color: #8b949e; min-width: 90px; flex-shrink: 0; }
 .test-mono { font-family: monospace; color: #e1e4e8; }
+
+/* #4 — Timezone dropdown */
+.tz-select { position: relative; }
+.tz-select input {
+  cursor: text;
+}
+.tz-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 0 0 6px 6px;
+  z-index: 10;
+}
+.tz-dropdown-item {
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #e1e4e8;
+}
+.tz-dropdown-item:hover { background: #21262d; }
+.tz-dropdown-item.selected { background: #1a3a4a; color: #58a6ff; }
