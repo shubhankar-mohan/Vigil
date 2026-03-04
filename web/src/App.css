@@ -217,14 +217,14 @@ body {
 
 /* #3 — Test query button: prominent filled style */
 .btn-test {
-  background: #1a3a4a;
-  border: 1px solid #22b8cf;
+  background: #0d9488;
+  border: 1px solid #14b8a6;
   color: #ffffff;
-  font-weight: 500;
+  font-weight: 600;
   padding: 0.45rem 1rem;
 }
-.btn-test:hover { background: #22b8cf; color: #0f1117; }
-.btn-test:disabled { opacity: 0.4; cursor: not-allowed; background: #1a3a4a; color: #22b8cf; }
+.btn-test:hover { background: #14b8a6; color: #ffffff; }
+.btn-test:disabled { opacity: 0.4; cursor: not-allowed; background: #134e4a; color: #5eead4; }
 
 .test-result {
   border: 1px solid #30363d;
