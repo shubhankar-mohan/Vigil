@@ -27,7 +27,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
 
   vigil:
-    build: .
+    image: shubhankarmohan/vigil:0.0.1
     ports:
       - "8080:8080"
     volumes:

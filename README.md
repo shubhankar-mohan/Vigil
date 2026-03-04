@@ -45,7 +45,7 @@ Add this to your existing monitoring `docker-compose.yml`:
 
 ```yaml
   vigil:
-    image: vigil:latest
+    image: shubhankarmohan/vigil:0.0.1
     ports:
       - "8080:8080"
     volumes:
@@ -227,89 +227,27 @@ Vigil computes the **median interval** between occurrences and alerts if `elapse
 | `dms_state_duration_seconds` | gauge | name, state | Seconds in current state |
 | `dms_eval_total` | counter | name, result | Evaluation count (pass/fail) |
 
-## API
-
-| Method | Path | Description |
-|---|---|---|
-| GET | `/health` | Health check |
-| GET | `/metrics` | Prometheus metrics |
-| GET | `/api/dashboard` | Dashboard summary |
-| GET | `/api/switches` | List all switches |
-| POST | `/api/switches` | Create switch |
-| GET | `/api/switches/:id` | Get switch detail |
-| PUT | `/api/switches/:id` | Update switch |
-| DELETE | `/api/switches/:id` | Delete switch |
-| POST | `/api/switches/:id/pause` | Pause evaluation |
-| POST | `/api/switches/:id/resume` | Resume evaluation |
-| POST | `/api/switches/test-query` | Test a PromQL/LogQL query |
-| GET | `/api/switches/:id/history` | Evaluation history |
-| GET | `/api/auto-rules` | List auto-discovery rules |
-| POST | `/api/auto-rules` | Create auto-discovery rule |
-| PUT | `/api/auto-rules/:id` | Update rule |
-| DELETE | `/api/auto-rules/:id` | Delete rule |
-
-### Test Query
-
-Before creating a switch, test your query:
-
-```bash
-# Prometheus
-curl -X POST http://localhost:8080/api/switches/test-query \
-  -H "Content-Type: application/json" \
-  -d '{"signal":"prometheus","query":"node_time_seconds{job=\"nodeexporter\"}"}'
-
-# Loki
-curl -X POST http://localhost:8080/api/switches/test-query \
-  -H "Content-Type: application/json" \
-  -d '{"signal":"loki","query":"{job=\"diagonAlleyBE_prod\"} |= \"completed\""}'
-```
-
-### Create Switch
-
-```bash
-curl -X POST http://localhost:8080/api/switches \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "sync_awb_cron",
-    "signal": "loki",
-    "query": "{job=\"diagonAlleyBE_prod\"} |= \"[CRON] sync_awb completed\"",
-    "mode": "frequency",
-    "interval_seconds": 3600,
-    "grace_seconds": 300
-  }'
-```
-
-## Auto-Discovery
-
-Vigil can automatically scan Loki for recurring log patterns and create switches for them.
-
-```bash
-curl -X POST http://localhost:8080/api/auto-rules \
-  -H "Content-Type: application/json" \
-  -d '{
-    "loki_selector": "{job=\"diagonAlleyBE_prod\"}",
-    "pattern": "[CRON]*",
-    "min_samples": 4,
-    "tolerance_multiplier": 2.0
-  }'
-```
-
 This scans Loki every hour for patterns matching `[CRON]*` in the specified job, and auto-creates irregularity-mode switches for any recurring patterns found.
 
-## Docker Build
+## Docker
 
 ```bash
-# Build image
-docker build -t vigil .
+# Pull from Docker Hub
+docker pull shubhankarmohan/vigil:0.0.1
 
 # Run standalone
 docker run -d \
   --name vigil \
   -p 8080:8080 \
   -v vigil-data:/data \
-  -e PROMETHEUS_URL=http://prometheus:9090 \
-  -e LOKI_URL=http://loki:3100 \
-  vigil
+  -v ./vigil.yml:/etc/vigil/vigil.yml:ro \
+  shubhankarmohan/vigil:0.0.1
+```
+
+To build from source instead:
+
+```bash
+docker build -t vigil .
 ```
 
 ## Development
@@ -334,24 +272,3 @@ npm install
 npm run dev
 # Opens at http://localhost:5173, proxies API to :8181
 ```
-
-## What Touches What
-
-| Component | Changes Needed |
-|---|---|
-| Your apps | **NONE** (zero code changes) |
-| Loki | Expose read API endpoints if behind proxy |
-| Prometheus | Add 3-line scrape config for Vigil |
-| Grafana | Add 1 alert rule: `dms_switch_status == 0` |
-| docker-compose | Add Vigil service block |
-
-## Tech Stack
-
-| Component | Technology |
-|---|---|
-| Language | Go |
-| HTTP Router | chi |
-| Database | SQLite (persisted via Docker volume) |
-| Metrics | prometheus/client_golang |
-| Frontend | React + TypeScript + Vite |
-| Docker | Multi-stage build (Node + Go + Alpine) |
