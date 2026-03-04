@@ -1,0 +1,23 @@
+# Binaries
+/vigil
+*.exe
+
+# Data
+/data/
+*.db
+*.db-shm
+*.db-wal
+
+# Dependencies
+web/node_modules/
+
+# Build artifacts
+web/dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
