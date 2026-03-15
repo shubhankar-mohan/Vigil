@@ -87,3 +87,36 @@ type SignalOccurrence struct {
 	SwitchID  uint      `gorm:"index;not null" json:"switch_id"`
 	OccurredAt time.Time `gorm:"not null" json:"occurred_at"`
 }
+
+// Alert channel types
+const (
+	ChannelSlack     = "slack"
+	ChannelWebhook   = "webhook"
+	ChannelDiscord   = "discord"
+	ChannelPagerDuty = "pagerduty"
+	ChannelTelegram  = "telegram"
+)
+
+// AlertChannel configures a notification destination
+type AlertChannel struct {
+	ID        uint      `gorm:"primarykey" json:"id"`
+	Name      string    `gorm:"uniqueIndex;not null" json:"name"`
+	Type      string    `gorm:"not null" json:"type"`    // slack, webhook, discord, pagerduty, telegram
+	Config    string    `gorm:"not null" json:"config"`  // JSON config blob
+	Enabled   bool      `gorm:"default:true" json:"enabled"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// AlertLog records each notification sent
+type AlertLog struct {
+	ID             uint      `gorm:"primarykey" json:"id"`
+	AlertChannelID uint      `gorm:"index;not null" json:"alert_channel_id"`
+	SwitchID       uint      `gorm:"index;not null" json:"switch_id"`
+	SwitchName     string    `gorm:"not null" json:"switch_name"`
+	OldState       string    `json:"old_state"`
+	NewState       string    `json:"new_state"`
+	Success        bool      `json:"success"`
+	Error          string    `json:"error,omitempty"`
+	SentAt         time.Time `gorm:"not null" json:"sent_at"`
+}

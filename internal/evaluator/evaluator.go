@@ -8,6 +8,7 @@ import (
 	"vigil/internal/config"
 	"vigil/internal/metrics"
 	"vigil/internal/models"
+	"vigil/internal/notifier"
 
 	"gorm.io/gorm"
 )
@@ -17,6 +18,7 @@ type Evaluator struct {
 	promClient *PromClient
 	lokiClient *LokiClient
 	cfg        *config.Config
+	notifier   *notifier.Notifier
 }
 
 func New(db *gorm.DB, cfg *config.Config, promClient *PromClient, lokiClient *LokiClient) *Evaluator {
@@ -25,6 +27,7 @@ func New(db *gorm.DB, cfg *config.Config, promClient *PromClient, lokiClient *Lo
 		promClient: promClient,
 		lokiClient: lokiClient,
 		cfg:        cfg,
+		notifier:   notifier.New(db),
 	}
 }
 
@@ -194,9 +197,17 @@ func (e *Evaluator) applyResult(sw *models.Switch, result *EvalResult, now time.
 		Details:  result.Details,
 	})
 
-	// Log state transitions
+	// Log state transitions and send alerts
 	if result.State != "" && result.State != oldState {
 		log.Printf("switch %q: %s -> %s (%s)", sw.Name, oldState, result.State, result.Details)
+		e.notifier.Notify(notifier.StateChange{
+			SwitchID:   sw.ID,
+			SwitchName: sw.Name,
+			OldState:   oldState,
+			NewState:   result.State,
+			Details:    result.Details,
+			Timestamp:  now,
+		})
 	}
 }
 

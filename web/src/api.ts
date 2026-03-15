@@ -59,6 +59,14 @@ export interface EvalHistory {
   details: string;
 }
 
+export interface HistoryResponse {
+  history: EvalHistory[];
+  uptime_pct: number;
+  total_evals: number;
+  pass_count: number;
+  fail_count: number;
+}
+
 export interface AutoRule {
   id: number;
   loki_selector: string;
@@ -76,6 +84,28 @@ export interface AutoRulesResponse {
   learning_count: number;
 }
 
+export interface AlertChannel {
+  id: number;
+  name: string;
+  type: string;
+  config: string;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AlertLog {
+  id: number;
+  alert_channel_id: number;
+  switch_id: number;
+  switch_name: string;
+  old_state: string;
+  new_state: string;
+  success: boolean;
+  error?: string;
+  sent_at: string;
+}
+
 // API calls
 export const api = {
   dashboard: () => request<Dashboard>('/dashboard'),
@@ -87,11 +117,19 @@ export const api = {
   deleteSwitch: (id: number) => request<void>(`/switches/${id}`, { method: 'DELETE' }),
   pauseSwitch: (id: number) => request<void>(`/switches/${id}/pause`, { method: 'POST' }),
   resumeSwitch: (id: number) => request<void>(`/switches/${id}/resume`, { method: 'POST' }),
-  getSwitchHistory: (id: number, limit = 50) => request<EvalHistory[]>(`/switches/${id}/history?limit=${limit}`),
+  getSwitchHistory: (id: number, range?: string) =>
+    request<HistoryResponse>(`/switches/${id}/history${range ? `?range=${range}` : '?limit=200'}`),
   testQuery: (signal: string, query: string) => request<Record<string, any>>('/switches/test-query', { method: 'POST', body: JSON.stringify({ signal, query }) }),
 
   listAutoRules: () => request<AutoRulesResponse>('/auto-rules'),
   createAutoRule: (data: Partial<AutoRule>) => request<AutoRule>('/auto-rules', { method: 'POST', body: JSON.stringify(data) }),
   updateAutoRule: (id: number, data: Partial<AutoRule>) => request<AutoRule>(`/auto-rules/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteAutoRule: (id: number) => request<void>(`/auto-rules/${id}`, { method: 'DELETE' }),
+
+  listAlertChannels: () => request<AlertChannel[]>('/alert-channels'),
+  createAlertChannel: (data: Partial<AlertChannel>) => request<AlertChannel>('/alert-channels', { method: 'POST', body: JSON.stringify(data) }),
+  updateAlertChannel: (id: number, data: Partial<AlertChannel>) => request<AlertChannel>(`/alert-channels/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteAlertChannel: (id: number) => request<void>(`/alert-channels/${id}`, { method: 'DELETE' }),
+  testAlertChannel: (id: number) => request<{ success: boolean; error?: string; message?: string }>(`/alert-channels/${id}/test`, { method: 'POST' }),
+  listAlertLogs: (limit = 50) => request<AlertLog[]>(`/alert-logs?limit=${limit}`),
 };

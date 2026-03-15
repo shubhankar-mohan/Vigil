@@ -261,6 +261,14 @@ func (s *Server) TestQuery(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type historyResponse struct {
+	History    []models.EvalHistory `json:"history"`
+	UptimePct  float64              `json:"uptime_pct"`
+	TotalEvals int                  `json:"total_evals"`
+	PassCount  int                  `json:"pass_count"`
+	FailCount  int                  `json:"fail_count"`
+}
+
 func (s *Server) GetSwitchHistory(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
@@ -268,16 +276,47 @@ func (s *Server) GetSwitchHistory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	limit := 50
-	if l := r.URL.Query().Get("limit"); l != "" {
-		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 && parsed <= 200 {
-			limit = parsed
+	var history []models.EvalHistory
+
+	if rangeStr := r.URL.Query().Get("range"); rangeStr != "" {
+		duration, err := time.ParseDuration(rangeStr)
+		if err != nil {
+			jsonError(w, http.StatusBadRequest, "invalid range duration")
+			return
 		}
+		since := time.Now().Add(-duration)
+		s.db.Where("switch_id = ? AND eval_at >= ?", id, since).Order("eval_at DESC").Find(&history)
+	} else {
+		limit := 50
+		if l := r.URL.Query().Get("limit"); l != "" {
+			if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 && parsed <= 200 {
+				limit = parsed
+			}
+		}
+		s.db.Where("switch_id = ?", id).Order("eval_at DESC").Limit(limit).Find(&history)
 	}
 
-	var history []models.EvalHistory
-	s.db.Where("switch_id = ?", id).Order("eval_at DESC").Limit(limit).Find(&history)
-	jsonResp(w, http.StatusOK, history)
+	passCount := 0
+	for _, h := range history {
+		if h.Result == "pass" {
+			passCount++
+		}
+	}
+	totalEvals := len(history)
+	failCount := totalEvals - passCount
+
+	var uptimePct float64
+	if totalEvals > 0 {
+		uptimePct = float64(passCount) / float64(totalEvals) * 100
+	}
+
+	jsonResp(w, http.StatusOK, historyResponse{
+		History:    history,
+		UptimePct:  uptimePct,
+		TotalEvals: totalEvals,
+		PassCount:  passCount,
+		FailCount:  failCount,
+	})
 }
 
 // JSON helpers

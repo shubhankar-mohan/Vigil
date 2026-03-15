@@ -3,6 +3,7 @@ import DashboardPage from './pages/Dashboard';
 import SwitchForm from './pages/SwitchForm';
 import SwitchDetail from './pages/SwitchDetail';
 import AutoRules from './pages/AutoRules';
+import AlertChannels from './pages/AlertChannels';
 import './App.css';
 
 function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
@@ -20,6 +21,7 @@ function App() {
           <div className="nav-links">
             <NavLink to="/">Dashboard</NavLink>
             <NavLink to="/switches/new">+ New Switch</NavLink>
+            <NavLink to="/alerts">Alerts</NavLink>
             <NavLink to="/auto">Auto-Discovery</NavLink>
           </div>
         </nav>
@@ -29,6 +31,7 @@ function App() {
             <Route path="/switches/new" element={<SwitchForm />} />
             <Route path="/switches/:id/edit" element={<SwitchForm />} />
             <Route path="/switches/:id" element={<SwitchDetail />} />
+            <Route path="/alerts" element={<AlertChannels />} />
             <Route path="/auto" element={<AutoRules />} />
           </Routes>
         </main>

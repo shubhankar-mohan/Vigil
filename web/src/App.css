@@ -271,3 +271,81 @@ body {
 }
 .tz-dropdown-item:hover { background: #21262d; }
 .tz-dropdown-item.selected { background: #1a3a4a; color: #58a6ff; }
+
+/* ── Channel type badge ── */
+.channel-type-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #1a3a4a;
+  color: #22b8cf;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Uptime Bar ── */
+.uptime-bar-container { margin-bottom: 1rem; }
+.uptime-bar-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+.uptime-pct { font-size: 1.5rem; font-weight: 700; }
+.uptime-label { font-size: 0.85rem; color: #8b949e; }
+.uptime-bar {
+  display: flex;
+  height: 28px;
+  border-radius: 4px;
+  overflow: hidden;
+  gap: 1px;
+  background: #21262d;
+}
+.uptime-segment {
+  min-width: 2px;
+  transition: opacity 0.15s;
+  cursor: default;
+}
+.uptime-segment:hover { opacity: 1 !important; }
+.uptime-bar-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+}
+
+/* ── Range Selector ── */
+.range-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 1.25rem 0 0.75rem;
+}
+.range-btn {
+  background: #161b22;
+  border: 1px solid #30363d;
+  color: #8b949e;
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.range-btn:hover { background: #21262d; color: #e1e4e8; }
+.range-btn-active {
+  background: #1a3a4a;
+  border-color: #58a6ff;
+  color: #58a6ff;
+  font-weight: 600;
+}
+
+/* ── Status Chart ── */
+.chart-container {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 0.5rem;
+  overflow: hidden;
+}

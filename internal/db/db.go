@@ -35,6 +35,8 @@ func Open(dbPath string) *gorm.DB {
 		&models.EvalHistory{},
 		&models.AutoDiscoveryRule{},
 		&models.SignalOccurrence{},
+		&models.AlertChannel{},
+		&models.AlertLog{},
 	); err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}

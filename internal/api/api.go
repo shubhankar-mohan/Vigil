@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"vigil/internal/evaluator"
+	"vigil/internal/notifier"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -15,11 +16,17 @@ type Server struct {
 	db         *gorm.DB
 	promClient *evaluator.PromClient
 	lokiClient *evaluator.LokiClient
+	notifier   *notifier.Notifier
 	router     chi.Router
 }
 
 func NewServer(db *gorm.DB, promClient *evaluator.PromClient, lokiClient *evaluator.LokiClient) *Server {
-	s := &Server{db: db, promClient: promClient, lokiClient: lokiClient}
+	s := &Server{
+		db:         db,
+		promClient: promClient,
+		lokiClient: lokiClient,
+		notifier:   notifier.New(db),
+	}
 	s.setupRoutes()
 	return s
 }
@@ -58,6 +65,15 @@ func (s *Server) setupRoutes() {
 		})
 
 		r.Get("/dashboard", s.Dashboard)
+
+		r.Route("/alert-channels", func(r chi.Router) {
+			r.Get("/", s.ListAlertChannels)
+			r.Post("/", s.CreateAlertChannel)
+			r.Put("/{id}", s.UpdateAlertChannel)
+			r.Delete("/{id}", s.DeleteAlertChannel)
+			r.Post("/{id}/test", s.TestAlertChannel)
+		})
+		r.Get("/alert-logs", s.ListAlertLogs)
 
 		r.Route("/auto-rules", func(r chi.Router) {
 			r.Get("/", s.ListAutoRules)
