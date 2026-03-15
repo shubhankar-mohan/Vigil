@@ -1,6 +1,6 @@
-# Vigil
+# Vigil — Dead Man's Switch for Monitoring
 
-A Dead Man Switch monitoring service. Detects when expected signals — Prometheus metrics or Loki logs — stop arriving. If a cron job silently stops running, a service stops emitting metrics, or a periodic log line disappears, Vigil catches it.
+A dead man switch (dead man's switch / deadman switch) monitoring service for Prometheus and Loki. Detects when expected signals — metrics or log lines — stop arriving. If a cron job silently stops running, a service stops emitting metrics, or a periodic log line disappears, Vigil catches it.
 
 Traditional monitoring catches errors. Vigil catches **silence**.
 
@@ -25,17 +25,19 @@ Your Apps                          Vigil (:8080)
                                    evaluates every 30s
                                    updates dms_switch_status
                                       │
-                                      ▼
-                    Prometheus ◄── scrapes /metrics
-                                      │
-                                      ▼
-                    Grafana ────► alert: dms_switch_status == 0
-                                      │
-                                      ▼
-                                   Slack / PagerDuty / Email
+                            ┌─────────┴─────────┐
+                            ▼                   ▼
+                    Prometheus ◄── /metrics   Built-in alerts
+                            │                   │
+                            ▼                   ▼
+                    Grafana alerts       Slack / Discord /
+                                        Webhook / PagerDuty /
+                                        Telegram
 ```
 
-Vigil doesn't send alerts directly. It exposes `dms_switch_status` as a Prometheus metric. Your existing Grafana alerting handles routing, silencing, and escalation — where you already manage it.
+Vigil supports **two alerting paths**:
+1. **Built-in alerts** — configure Slack, Discord, Webhook, PagerDuty, or Telegram channels directly in the Vigil UI. Alerts fire on state changes.
+2. **Prometheus metrics** — Vigil exposes `dms_switch_status` as a Prometheus gauge. Use your existing Grafana alerting for routing, silencing, and escalation.
 
 ## Quick Start
 
@@ -45,7 +47,7 @@ Add this to your existing monitoring `docker-compose.yml`:
 
 ```yaml
   vigil:
-    image: shubhankarmohan/vigil:0.0.1
+    image: shubhankarmohan/vigil:latest
     ports:
       - "8080:8080"
     volumes:
@@ -233,7 +235,7 @@ This scans Loki every hour for patterns matching `[CRON]*` in the specified job,
 
 ```bash
 # Pull from Docker Hub
-docker pull shubhankarmohan/vigil:0.0.1
+docker pull shubhankarmohan/vigil:latest
 
 # Run standalone
 docker run -d \
@@ -241,7 +243,7 @@ docker run -d \
   -p 8080:8080 \
   -v vigil-data:/data \
   -v ./vigil.yml:/etc/vigil/vigil.yml:ro \
-  shubhankarmohan/vigil:0.0.1
+  shubhankarmohan/vigil:latest
 ```
 
 To build from source instead:
